@@ -36,7 +36,7 @@ def get_image_point(loc, K, w2c):
 
         return point_img[0:2]
 
-def get_ground_truth(world,vehicle,img,world_2_camera,K):
+def get_ground_truth(world,vehicle,img,world_2_camera,K,idx,save=False):
     bb_boxes = []
     actor_id = []
     for npc in world.get_actors().filter('*vehicle*'):
@@ -81,8 +81,29 @@ def get_ground_truth(world,vehicle,img,world_2_camera,K):
                             y_min = p[1]
                     bb_boxes.append([x_min,y_min,x_max,y_max])
                     actor_id.append(npc.type_id)
-                    # cv2.line(img, (int(x_min),int(y_min)), (int(x_max),int(y_min)), (0,0,255, 255), 1)
-                    # cv2.line(img, (int(x_min),int(y_max)), (int(x_max),int(y_max)), (0,0,255, 255), 1)
-                    # cv2.line(img, (int(x_min),int(y_min)), (int(x_min),int(y_max)), (0,0,255, 255), 1)
-                    # cv2.line(img, (int(x_max),int(y_min)), (int(x_max),int(y_max)), (0,0,255, 255), 1)
+
+                    cv2.line(img, (int(x_min),int(y_min)), (int(x_max),int(y_min)), (0,0,255, 255), 1)
+                    cv2.line(img, (int(x_min),int(y_max)), (int(x_max),int(y_max)), (0,0,255, 255), 1)
+                    cv2.line(img, (int(x_min),int(y_min)), (int(x_min),int(y_max)), (0,0,255, 255), 1)
+                    cv2.line(img, (int(x_max),int(y_min)), (int(x_max),int(y_max)), (0,0,255, 255), 1)
+    if save:    
+        cv2.imwrite(f'/home/anjali/carla_sim/data/true_{idx}.png', img)
     return bb_boxes,actor_id
+
+def calculate_iou(boxA, boxB):
+    # Determine the coordinates of the intersection rectangle
+    xA = max(boxA[0], boxB[0])
+    yA = max(boxA[1], boxB[1])
+    xB = min(boxA[2], boxB[2])
+    yB = min(boxA[3], boxB[3])
+
+    # Compute the area of intersection
+    interArea = max(0, xB - xA + 1) * max(0, yB - yA + 1)
+
+    # Compute the areas of both bounding boxes
+    boxAArea = (boxA[2] - boxA[0] + 1) * (boxA[3] - boxA[1] + 1)
+    boxBArea = (boxB[2] - boxB[0] + 1) * (boxB[3] - boxB[1] + 1)
+
+    # Compute IoU
+    iou = interArea / float(boxAArea + boxBArea - interArea)
+    return iou

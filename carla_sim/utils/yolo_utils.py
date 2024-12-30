@@ -61,7 +61,7 @@ def yolo_detect(img_,img,idx,verbose=False,save=False):
                 # Labels and confidences for the image
                 text = "{}: {:.4f}".format(classes[classIDs[i]], confidences[i])
                 cv2.putText(img_, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 1)
-                cv2.imwrite(f'output_{idx}.png', img_)
+                cv2.imwrite(f'/home/anjali/carla_sim/data/output_{idx}.png', img_)
         print('Image preview:')
         plt.imshow(cv2.cvtColor(img_, cv2.COLOR_BGR2RGB), interpolation='none')
     return classIDs,boxes,confidences

@@ -14,22 +14,18 @@ from utils.yolo_utils import yolo_detect
 def run():
     client = carla.Client('localhost', 2000)
     world  = client.get_world()
-    # world = client.load_world('Town01')  # Replace with the map of your choice
-
     bp_lib = world.get_blueprint_library()
 
     # Get the map spawn points
     spawn_points = world.get_map().get_spawn_points()
 
     # spawn vehicle
-    vehicle = world.get_actors().filter('vehicle.lincoln.mkz_2017')[0]
-    print(vehicle)
-
-    # vehicle_bp =bp_lib.find('vehicle.lincoln.mkz_2020')
-    # vehicle = world.try_spawn_actor(vehicle_bp, random.choice(spawn_points))
+    vehicle_bp =bp_lib.find('vehicle.lincoln.mkz_2020')
+    vehicle = world.try_spawn_actor(vehicle_bp, random.choice(spawn_points))
 
     # spawn camera
     camera_bp = bp_lib.find('sensor.camera.rgb')
+    camera_init_trans = carla.Transform(carla.Location(z=2))
     cam_location = carla.Location(x=1.5, z=2.4)
     cam_rotation = carla.Rotation(pitch=-15)
     cam_transform = carla.Transform(cam_location, cam_rotation)
@@ -54,30 +50,16 @@ def run():
     # Create a queue to store and retrieve the sensor data
     image_queue = queue.Queue()
     camera.listen(image_queue.put)
-
-    
-    # # Spawn a pedestrian
-    # for i in range(10):
-    #     pedestrian_bp = bp_lib.filter('walker.pedestrian.*')[0]
-    #     # pedestrian_spawn_point = carla.Transform(carla.Location(x=15, y=0, z=0))
-    #     pedestrian = world.spawn_actor(pedestrian_bp, spawn_points[i+1])
-
-    #     walker_controller_bp = bp_lib.find('controller.ai.walker')
-    #     walker_controller = world.spawn_actor(walker_controller_bp, carla.Transform(), attach_to=pedestrian)
-
-    #     walker_controller.start()
-    #     walker_controller.go_to_location(carla.Location(x=20, y=0, z=0))  # Target destination
-    #     walker_controller.set_max_speed(1.0)  # Speed in m/s
-
-    # for i in range(10):
-    #     vehicle_bp = random.choice(bp_lib.filter('vehicle'))
-    #     npc = world.try_spawn_actor(vehicle_bp, random.choice(spawn_points))
-    #     if npc:
-    #         npc.set_autopilot(True)
+   
+    for i in range(10):
+        vehicle_bp = random.choice(bp_lib.filter('vehicle'))
+        npc = world.try_spawn_actor(vehicle_bp, random.choice(spawn_points))
+        if npc:
+            npc.set_autopilot(True)
 
     error_list= []
     
-    for idx in range(1000):
+    for idx in range(2000):
         # Retrieve and reshape the image
         world.tick()
         image = image_queue.get()
